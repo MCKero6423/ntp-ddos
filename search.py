@@ -1,31 +1,41 @@
 import shodan
 import socket
 
-API_KEY = ""
+API_KEY = "LZcHblTR6u4Rd2P70EbuSRD6VslppLNa"
 
-def search_and_save(api_key, query="\"ntpd 4.2.6\"", filename="server.txt", max_pages=5):
+def search_and_save(api_key, query="\"ntpd 4.2.6\"", filename="server.txt"):
+    """
+    修改后的函数，适用于 Shodan 免费帐户。
+    移除了分页循环，因为免费帐户不支持分页。
+    """
     api = shodan.Shodan(api_key)
     total_saved = 0
 
+    print(f"正在使用免费帐户搜索: {query}")
+
     try:
-        # 遍历指定的最大页面数
-        for page in range(1, max_pages + 1):
-            # 搜索指定的查询，包括页面参数
-            results = api.search(query, page=page)
+        # 免费帐户不支持 'page' 参数，
+        # 并且一次调用只会返回第一页（最多100个）结果
+        results = api.search(query)
 
-            # 打开文件以追加模式
-            with open(filename, "a") as file:
-                for result in results['matches']:
-                    ip = result['ip_str']
-                    file.write(ip + "\n")
-                    total_saved += 1
+        # 打开文件以追加模式 (append mode)，并指定 utf-8 编码
+        with open(filename, "a", encoding="utf-8") as file:
+            for result in results['matches']:
+                ip = result['ip_str']
+                file.write(ip + "\n")
+                total_saved += 1
+        
+        print(f"\n搜索完成。")
+        # 显示 Shodan 报告的找到的总数
+        print(f"Shodan 报告的总结果数: {results.get('total', 0)}")
+        # 显示实际保存的数量
+        print(f"已成功保存 {total_saved} 个IP地址到 {filename}")
+        print("（注意：免费帐户限制为仅获取第一页结果）")
 
-            print(f"从页面 {page} 保存了 {len(results['matches'])} 个IP地址")
-
-        print(f"总共保存了 {total_saved} 个IP地址到 {filename}")
     except shodan.APIError as e:
-        print(f"发生错误: {e}")
-
+        print(f"发生API错误: {e}")
+    except Exception as e:
+        print(f"发生意外错误: {e}")
 
 def remove_duplicates():
     filename = "server.txt"
