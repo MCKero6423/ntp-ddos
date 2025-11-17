@@ -1,7 +1,7 @@
 import shodan
 import socket
 
-API_KEY = "LZcHblTR6u4Rd2P70EbuSRD6VslppLNa"
+API_KEY = "lRjV1lkSj1SPGUl3iZlKt7fUVUvUvRWr"
 
 def search_and_save(api_key, query="\"ntpd 4.2.6\"", filename="server.txt"):
     """
